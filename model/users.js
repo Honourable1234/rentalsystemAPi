@@ -25,7 +25,6 @@ const usersSchema = new mongoose.Schema({
     },
     phoneNumber: {
         type: String,
-        unique: [true, 'user with provided Phone Number alreade exists']
     },
     email_verified: {
         type: Boolean,

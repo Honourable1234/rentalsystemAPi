@@ -9,7 +9,7 @@ const createVerificationTokenAndSendEmail = require('../utils/createlVerificatio
 
 const register = async (req, res, next) =>{
     try {
-        const {email, firstName, lastName, password} = req.body;
+        const {email, firstName, lastName, password, phoneNumber} = req.body;
         if(!email || !firstName || !lastName || !password){
             throw new AppError('please fill all required fields', 400)
         }
@@ -23,7 +23,8 @@ const register = async (req, res, next) =>{
             email,
             firstName,
             lastName,
-            password: hashedPassword
+            password: hashedPassword,
+            phoneNumber,
         });
         const JWTSecret = process.env.JWTSecret;
         JWTExpiresIn = process.env.JWTExpiresIn;
@@ -41,9 +42,11 @@ const register = async (req, res, next) =>{
                 user: newUser,
                 token
             }
-        })
+        }) 
     } catch (error) {
-        next(error)
+        console.log('registeration error', error),
+        
+       next(error)
     }
 }
 
@@ -83,7 +86,7 @@ const verifyEmailAddress = async (req, res, next)=>{
         if(!email || !verificationToken){
             throw new AppError('Invalid Verification link', 400);
         }
-        const user = Users.findOne({email});
+        const user = await Users.findOne({email});
         if(!user){
             throw new AppError('User with Email Address not found', 404);
         }

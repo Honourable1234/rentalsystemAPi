@@ -49,7 +49,7 @@ const sendProdError = (err, res) =>{
 
 const errorHandler = async (err, req, res, next) =>{
     if (process.env.NODE_ENV === "development"){
-        sendDevError (er, res);
+        sendDevError (err, res);
     } else {
         let error = JSON.parse(JSON.stringify(err));
         if (error.code === 11000){

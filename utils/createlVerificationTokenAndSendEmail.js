@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
-const sendEmail = require('\./email')
+const sendEmail = require('./email')
 
 const createEmailVerificationAndSendEmail = async(req, user) =>{
     const verificationToken = crypto.randomBytes(32).toString("hex");

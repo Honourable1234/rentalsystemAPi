@@ -17,7 +17,7 @@ App.use(express.urlencoded({ extended: true }));
 
 App.use("/api/v1/users", userRoutes);
 App.use("/api/v1/books", bookRoutes);
-App.use("api/v1/auth", authRoutes);
+App.use("/api/v1/auth", authRoutes);
 
 App.all('*', (req, res)=>{
     const message = new AppError(

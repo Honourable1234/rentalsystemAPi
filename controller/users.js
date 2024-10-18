@@ -31,31 +31,31 @@ const getSingleUser = async(req, res, next) =>{
         next(eror);
     };
 };
-const createNewUser = async(req, res, next) =>{
-    try {
-        const {firstName, lastName, password, email, phoneNumber} = req.body;
-            if(!firstName || !lastName || !password || !email){
-             throw new AppError("please fill all required fields", 400)
-        }
-        const newUser = await user.create({
-            firstName,
-            lastName,
-            password,
-            email,
-            phoneNumber
-        });
-        if(!newUser){
-            throw new AppError('error while creating new user', 404)
-        }
-        res.status(200).json({
-            status:'success',
-            message: 'user created successfully',
-            data: newUser,
-        })
-    } catch (error) {
-        next(error)
-    }
-}
+// const createNewUser = async(req, res, next) =>{
+//     try {
+//         const {firstName, lastName, password, email, phoneNumber} = req.body;
+//             if(!firstName || !lastName || !password || !email){
+//              throw new AppError("please fill all required fields", 400)
+//         }
+//         const newUser = await user.create({
+//             firstName,
+//             lastName,
+//             password,
+//             email,
+//             phoneNumber
+//         });
+//         if(!newUser){
+//             throw new AppError('error while creating new user', 404)
+//         }
+//         res.status(200).json({
+//             status:'success',
+//             message: 'user created successfully',
+//             data: newUser,
+//         })
+//     } catch (error) {
+//         next(error)
+//     }
+// }
 const updateUser = async(req, res, next) =>{
     try {
         const uid = req.params.id;
@@ -91,7 +91,7 @@ const deleteUser = async(req, res, next) =>{
 module.exports = {
     getSingleUser,
     getAllUsers,
-    createNewUser,
+    // createNewUser,
     updateUser,
     deleteUser,
 }
