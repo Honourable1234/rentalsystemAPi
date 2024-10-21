@@ -15,6 +15,12 @@ App.use(express.json());
 App.use(express.urlencoded({ extended: true }));
 
 
+App.get("/", (req, res) => {
+    res.status(200).json({
+        status: "Success",
+        message: "Welcome to Rentals API"
+    })
+})
 App.use("/api/v1/users", userRoutes);
 App.use("/api/v1/books", bookRoutes);
 App.use("/api/v1/auth", authRoutes);
