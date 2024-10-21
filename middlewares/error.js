@@ -16,7 +16,7 @@ const handleCastErrorDB = (err) =>{
 const handleValidationErrorDB = (err) =>{
     let messages = [];
     Object.values(err.errors).map((el) =>{
-        message.push(el.message);
+        messages.push(el.message);
     });
     console.log(messages);
     return new AppError(messages.join(" , "), 400);

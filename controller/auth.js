@@ -1,82 +1,120 @@
 const AppError = require('./../utils/AppError');
 const sendEmail = require('\./../utils/email');
-const Users = require('./../model/users');
+const users = require('./../model/users');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const createVerificationTokenAndSendEmail = require('../utils/createlVerificationTokenAndSendEmail.js');
+const { log } = require('console');
 
 
-const register = async (req, res, next) =>{
+const register = async (req, res, next) => {
     try {
-        const {email, firstName, lastName, password, phoneNumber} = req.body;
-        if(!email || !firstName || !lastName || !password){
-            throw new AppError('please fill all required fields', 400)
+        const { email, firstName, lastName, password, phoneNumber } = req.body;
+        console.log(password);
+        
+        // Check if required fields are present
+        if (!email || !firstName || !lastName || !password) {
+            throw new AppError('Please fill all required fields', 400);
         }
-        const existingUser = await Users.findOne({email: email});
-        if(existingUser){
-            throw new AppError('User with the email address exists', 400)
+
+        // Check if the user already exists
+        const existingUser = await users.findOne({ email: email });
+        if (existingUser) {
+            throw new AppError('User with this email address already exists', 400);
         }
-        const salt = await bcrypt.genSalt(12);
-        const hashedPassword = await bcrypt.hash(password, salt);
-        const newUser = await Users.create({
+
+        // Hash the password
+        const saltRounds =  10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        // Create the new user
+        const newUser = await users.create({
             email,
             firstName,
             lastName,
             password: hashedPassword,
             phoneNumber,
         });
+
+        // Generate JWT token
         const JWTSecret = process.env.JWTSecret;
-        JWTExpiresIn = process.env.JWTExpiresIn;
-        const token = jwt.sign({id: newUser._id}, JWTSecret, {expiresIn: JWTExpiresIn})
+        const JWTExpiresIn = process.env.JWTExpiresIn;
+        const token = jwt.sign({ id: newUser._id }, JWTSecret, { expiresIn: JWTExpiresIn });
+
+        // Send welcome email
         await sendEmail({
             email: email,
-            subject: 'Wellcome to our Book rental',
-            message: 'We hereby welcome you to our Book rental service, where we provide you with endless varieties of attention catching and suspence packed books'
+            subject: 'Welcome to our Book Rental',
+            message: 'We hereby welcome you to our Book rental service...',
         });
+
+        // Send verification email
         await createVerificationTokenAndSendEmail(req, newUser);
+
+        // Respond to client
         res.status(201).json({
             status: 'success',
             message: 'User created successfully',
-            data:{
+            data: {
                 user: newUser,
                 token
             }
-        }) 
+        });
     } catch (error) {
-        console.log('registeration error', error),
-        
-       next(error)
+        next(error); // Pass error to middleware
     }
 }
 
-const login = async (req, res, next) =>{
+const login = async (req, res, next) => {
+    const { email, password} = req.body;
+
     try {
-        const {email, password} = req.body;
-        if(!email || !password){
+        // Check if email and password are provided
+        if (!email) {
             throw new AppError('Please provide email and password', 400);
         }
-        const user = await Users.findOne({email: email}, '+password');
-        let checkIfPasswordIsCorrect = false;
-        if(user){
-            checkIfPasswordIsCorrect = await bcrypt.compare(password, user?.password);
+
+        // Find user and include password in the query
+        const user = await users.findOne({ email: email });
+        console.log(user);
+        console.log(password);
+        
+        
+        // Check if the user exists
+        if (!user) {
+            throw new AppError('Invalid email', 400);
         }
-        if(!user || !checkIfPasswordIsCorrect){
-            throw new AppError('Invalid email or password', 400);
+    
+        // Compare the entered password with the hashed one
+        const hash = user.password
+        const checkIfPasswordIsCorrect = await bcrypt.compare(password, hash);
+        if (!checkIfPasswordIsCorrect) {
+            throw new AppError('Invalid password', 400);
         }
+
+        // Check if email is verified
+        if (!user.email_verified) {
+            throw new AppError('Email is not verified. Please verify your email before logging in.', 403);
+        }
+
+        // Generate JWT token
         const JWTSecret = process.env.JWTSecret;
-        JWTExpiresIn = process.env.JWTExpiresIn;
-        const token = jwt.sign({id: user._id}, JWTSecret, {expiresIn: JWTExpiresIn});
+        const JWTExpiresIn = process.env.JWTExpiresIn;
+        const token = jwt.sign({ id: user._id }, JWTSecret, { expiresIn: JWTExpiresIn });
+
+        // Respond to client
         res.status(201).json({
             status: 'success',
-            message: 'Login Successful',
-            data:{
+            message: 'Login successful',
+            data: {
                 user,
                 token
             }
-        })
+        });
     } catch (error) {
-        next(error)
+        console.log(error);
+        next(error); // Pass error to middleware
     }
 };
 
@@ -86,7 +124,7 @@ const verifyEmailAddress = async (req, res, next)=>{
         if(!email || !verificationToken){
             throw new AppError('Invalid Verification link', 400);
         }
-        const user = await Users.findOne({email});
+        const user = await users.findOne({email});
         if(!user){
             throw new AppError('User with Email Address not found', 404);
         }
@@ -118,7 +156,7 @@ const resendEmailVerificationURL = async (req, res, next)=>{
         if(!email){
             throw new AppError('Please provide email', 400);
         }
-        const user = await Users.findOne({email});
+        const user = await users.findOne({email});
         if(!user){
             throw new AppError('User with the email address not found', 404)
         }

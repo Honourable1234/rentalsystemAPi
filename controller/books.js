@@ -1,5 +1,7 @@
 const book = require('./../model/books')
 const AppError = require('./../utils/AppError')
+const { dataUri } = require("./../utils/multer");
+const { uploader } = require("./../config/cloudinary");
 
 const getAllBooks = async (req, res, next) =>{
     try {
@@ -33,15 +35,14 @@ const getSingleBook = async(req, res, next) =>{
 };
 const addNewBook = async(req, res, next) =>{
     try {
-        const {title, author, description, content} = req.body;
-            if(!title || !author || !description || !content){
+        const {title, description, content} = req.body;
+        if(!title || !description || !content){
              throw new AppError("please fill all required fields", 400)
         }
         const newBook = await book.create({
             title, 
-            author, 
             description, 
-            content
+            content,
         });
         if(!newBook){
             throw new AppError('error while adding new book', 404)

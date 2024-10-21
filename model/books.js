@@ -4,10 +4,6 @@ const booksSchema = new mongoose.Schema({
         type: String,
         required: [true, 'please provide the Title']
     },
-    author: {
-        type: String,
-        required: [true, 'please provide Name of the Author']
-    },
     description: {
         type: String,
         required: [true, 'please provide a description of the book'],

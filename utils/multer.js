@@ -24,5 +24,6 @@ const imageUpload = multer({
 
 const dUri = new DataUri();
 
-const datauri = (req) =>
+const dataUri = (req) =>
     dUri.format(path.extname(req.file.originalname).to)
+module.exports = { imageUpload, dataUri }

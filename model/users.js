@@ -15,7 +15,6 @@ const usersSchema = new mongoose.Schema({
         type: String,
         required: [true, 'please provide password'],
         minLength: [8, 'password must be at least 8 characters'],
-        select: false
     },
     email: {
         type: String,
@@ -36,12 +35,6 @@ const usersSchema = new mongoose.Schema({
     image: {
         type: String,
     }
-})
-usersSchema.pre('save', async function (next){
-    if(!this.isModified('password')) return next()
-
-        this.password = await bcrypt.hash(this.password, 12);
-    next();
 })
 const users = mongoose.model('users', usersSchema)
 module.exports = users;

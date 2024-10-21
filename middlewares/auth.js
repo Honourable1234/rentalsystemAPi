@@ -1,11 +1,11 @@
-const webToken = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const Users = require('./../model/users');
 const AppError = require('./../utils/AppError');
 const protectRoute = async(req, res, next) =>{
     try {
         let token = '';
-        if (req.headers.authorisation &&
-            req.headers.authorisation.startsWith('bearer')
+        if (req.headers.authorization &&
+            req.headers.authorization.startsWith('Bearer')
         ) {
             token = req.headers.authorisation.split(' ')[1];
         }
@@ -22,7 +22,7 @@ const protectRoute = async(req, res, next) =>{
         };
         const userId = decoded.id;
         const user = await Users.findById(userId);
-        if (!User) {
+        if (!user) {
             throw new AppError('invalid user for the token supplied, please login again to continue', 404)
         };
         req.user = user;
